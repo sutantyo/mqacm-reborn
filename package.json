@@ -1,0 +1,29 @@
+{
+  "name": "mqacm-reborn",
+  "version": "0.1.0",
+  "description": "webapp for macquarie coding club",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "firebase": "^5.5.0",
+    "helmet": "^3.13.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sutantyo/mqacm-reborn.git"
+  },
+  "author": "Daniel Sutantyo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sutantyo/mqacm-reborn/issues"
+  },
+  "homepage": "https://github.com/sutantyo/mqacm-reborn#readme"
+}
