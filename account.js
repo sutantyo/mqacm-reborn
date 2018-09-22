@@ -22,4 +22,3 @@ router.post('/api/signup', function(req, res)}{
 
 	users.child(username).once('value')
 });
-
