@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import withAuthorization from 'utilities/withAuthorization';
 
 class Leaderboard extends Component {
   render() {
@@ -7,4 +8,5 @@ class Leaderboard extends Component {
     );
   }
 }
-export default Leaderboard;
+const authCondition = (authUser) => !!authUser;
+export default withAuthorization(authCondition)(Leaderboard);

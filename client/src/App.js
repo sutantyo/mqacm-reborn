@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route} from 'react-router-dom';
-import './App.css';
+import 'css/App.css';
 
-import WelcomePage from 'components/WelcomePage';
+import LandingPage from 'components/LandingPage';
 
 import GettingStarted from 'components/GettingStarted';
 import Problems from 'components/Problems';
@@ -22,7 +22,7 @@ class App extends Component {
       <div>
         <Router>
           <div>
-            <EmptyLayout exact path="/" component={WelcomePage}/>
+            <EmptyLayout exact path="/" component={LandingPage}/>
             <DefaultLayout path="/getting-started" component={GettingStarted}/>
             <DefaultLayout path="/problems" component={Problems}/>
             <DefaultLayout path="/leaderboard" component={Leaderboard}/>

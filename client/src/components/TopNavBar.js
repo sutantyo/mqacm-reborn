@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import * as firebase from 'firebase';
 
 
 class TopNavBar extends Component {
@@ -21,7 +22,9 @@ class TopNavBar extends Component {
           <span>
             <Link to="/">Home</Link>
           </span>
-
+          <span>
+            <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
+          </span>
       </div>
     );
   }

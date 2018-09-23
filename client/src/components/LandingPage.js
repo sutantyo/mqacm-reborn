@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import SignInScreen from 'utilities/firebase';
 
 
-class WelcomePage extends Component {
+class LandingPage extends Component {
   render() {
     return(
       <div>
@@ -23,8 +24,9 @@ class WelcomePage extends Component {
             <Link to="/resources">Resources</Link>
           </li>
         </ul>
+        <SignInScreen />
       </div>
     );
   }
 }
-export default WelcomePage;
+export default LandingPage;

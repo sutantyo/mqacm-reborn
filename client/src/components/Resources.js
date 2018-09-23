@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import withAuthorization from 'utilities/withAuthorization';
 
 class Resources extends Component {
   render() {
@@ -7,4 +8,5 @@ class Resources extends Component {
     );
   }
 }
-export default Resources;
+const authCondition = (authUser) => !!authUser;
+export default withAuthorization(authCondition)(Resources);
