@@ -31,7 +31,7 @@ function authenticate(credentials_path, token_path){
              + 'Error message: ' + err);
         }
         google_auth.setCredentials(JSON.parse(token));
-        return resolve(google_auth);
+        resolve(google_auth)
       });
     });
   });

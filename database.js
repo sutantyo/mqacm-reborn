@@ -20,23 +20,24 @@ let problems_4 = new Set();
 let problems_5 = new Set();
 
 module.exports = {
-  update_data : update_data
+  start_server : start_server,
+  update_server : update_server
 }
+
 
 /*
 gapi.authenticate(gapi_credentials, gapi_token)
   .then( (auth) => read_google_spreadsheet(auth) )
-  .then( () =>  firebase.authenticate(firebase_credentials) )
+  .then( () => firebase.authenticate(firebase_credentials) )
   .then( () => update_problems() )
   .then( () => update_participants() )
-  .then( () => console.log('chain is done'))
   .catch( (error) => {console.log(error); })
-*/
+  */
 
 
-function update_data(){
+function start_server(){
   return new Promise( (resolve,reject) => {
-    gapi.authenticate('private/google_api_credentials.json', 'private/token.json')
+    gapi.authenticate(gapi_credentials,gapi_token)
       .then( (auth) => read_google_spreadsheet(auth) )
       .then( () =>  firebase.authenticate(firebase_credentials) )
       .then( () => update_problems() )
@@ -45,6 +46,14 @@ function update_data(){
       .catch( (error) => {console.log(error); } )
   });
 }
+
+function update_server(){
+    gapi.authenticate(gapi_credentials,gapi_token)
+      .then( (auth) => read_google_spreadsheet(auth) )
+      .then( () => update_problems() )
+      .then( () => update_participants() )
+}
+
 
 function read_google_spreadsheet(auth){
   return new Promise( (resolve,reject) => {
@@ -60,7 +69,7 @@ function read_google_spreadsheet(auth){
         return reject('The Google API returned an error: ' + err);
       participants_data = res.data.valueRanges[0].values;
       problems_data = res.data.valueRanges[1].values;
-      resolve();
+      resolve()
     });
   });
 }
@@ -94,13 +103,11 @@ function update_participants(){
     //let request_string = 'http://uhunt.felix-halim.net/api/subs-nums/'+user_ids+'/'+problem_ids+'/0';
     let request_string = 'http://uhunt.felix-halim.net/api/solved-bits/'+user_ids;
     //let request_string = 'http://localhost:4000/data.json';
-    request
-      .get(request_string)
-      .on('error', function(err){
-        return reject('error obtaining data from uHunt API: ' + error);
-      })
-      .on('response',
-      function(response,body){
+    request(request_string,
+      function(error,response,body){
+        if (error){
+          return reject('error obtaining data from uHunt API: ' + error);
+        }
         let api_data = JSON.parse(body);
 
         // The API call returns an array, each array element is a JSON object with
@@ -163,8 +170,7 @@ function update_participants(){
         firebase.admin.database().ref().update({
           participants
         })
-        .then( () => process.exit(0))
-        .then( resolve() );
+        .then( resolve() )
       });
   });
 }
@@ -226,7 +232,7 @@ function update_problems(){
     firebase.admin.database().ref().update({
       problems, problem_set
     })
-    .then( () => process.exit(0))
+    //.then( () => process.exit(0))
     .then( resolve() );
   });
 }

@@ -7,24 +7,24 @@ class TopNavBar extends Component {
   render() {
     return(
       <div>
-          <span>
+          <div>
             <Link to="/problems">Problems</Link>
-          </span>
-          <span>
+          </div>
+          <div>
             <Link to="/leaderboard">Leaderboard</Link>
-          </span>
-          <span>
+          </div>
+          <div>
             <Link to="/profile">Profile</Link>
-          </span>
-          <span>
+          </div>
+          <div>
             <Link to="/resources">Resources</Link>
-          </span>
-          <span>
+          </div>
+          <div>
             <Link to="/">Home</Link>
-          </span>
-          <span>
+          </div>
+          <div>
             <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
-          </span>
+          </div>
       </div>
     );
   }
