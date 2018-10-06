@@ -20,7 +20,6 @@ const config = {
   messagingSenderId: "857133548781"
 };
 
-
 app.use(helmet())
 app.use(express.static(path.join(__dirname, 'mqacm_client/build')));
 app.get('*', (req, res) => {

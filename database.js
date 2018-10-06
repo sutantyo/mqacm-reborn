@@ -2,6 +2,9 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 
+//const firebase = require('firebase');
+
+
 // If modifying these scopes, delete token.json.
 const GAPI_SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const GAPI_TOKEN_PATH = './private/token.json';
@@ -26,7 +29,7 @@ function authorize(credentials, callback) {
       client_id, client_secret, redirect_uris[0]);
 
   // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, (err, token) => {
+  fs.readFile(GAPI_TOKEN_PATH, (err, token) => {
     if (err) return getNewToken(google_auth, callback);
     google_auth.setCredentials(JSON.parse(token));
     callback(google_auth);
@@ -82,20 +85,39 @@ function readGoogleSpreadsheet(auth) {
       // Print columns A and E, which correspond to indices 0 and 4.
       rows.map((row) => {
         console.log(`${row[0]}, ${row[4]}`);
+        console.log('sheet done');
       });
     } else {
       console.log('No data found.');
     }
   });
+  console.log('sheet done');
 }
 
-function updateFirebaseDB() {
+/*
+const config = {
+  apiKey: "AIzaSyAj7DYUjvN2pLCUmxY-O7dns92kMrOZIyo",
+  authDomain: "mqacm-reborn.firebaseapp.com",
+  databaseURL: "https://mqacm-reborn.firebaseio.com",
+  projectId: "mqacm-reborn",
+  storageBucket: "mqacm-reborn.appspot.com",
+  messagingSenderId: "857133548781"
+};
+firebase.initializeApp(config);
+*/
+testFirebase();
 
-  var admin = require("firebase-admin");
-  var serviceAccount = require("./private/firebase_credentials.json");
+function testFirebase() {
+
+  const admin = require("firebase-admin");
+  const serviceAccount = require("./private/firebase_credentials.json");
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://mqacm-reborn.firebaseio.com"
   });
+
+  admin.database().ref('test').update({
+    dione : 'morales',
+  }).then( () => process.exit(0))
 }
