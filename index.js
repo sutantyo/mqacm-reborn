@@ -7,7 +7,7 @@ const database = require('./database');
 
 const app =  express();
 app.use(helmet())
-app.use(express.static(path.join(__dirname, 'mqacm_client/build')));
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 database.start_server()
   .then( () => {
