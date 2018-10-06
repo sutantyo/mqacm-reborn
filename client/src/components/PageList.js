@@ -10,8 +10,6 @@ class PageList extends Component {
   render() {
     return(
         <div>
-        { }
-
         </div>
     );
   }

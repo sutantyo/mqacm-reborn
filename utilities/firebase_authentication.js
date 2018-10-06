@@ -3,13 +3,12 @@ const fs = require('fs');
 
 
 function authenticate(credentials_path){
-  console.log(credentials_path);
   return new Promise( (resolve,reject) => {
     //console.log(credentials_path);
 
     fs.readFile(credentials_path, (err, content) => {
       if (err){
-        return reject('Error loading firebase credentials file:', err);
+        return reject('Error loading firebase credentials file:' + err);
       }
       const serviceAccount = JSON.parse(content);
       admin.initializeApp({

@@ -15,8 +15,8 @@ function authenticate(credentials_path, token_path){
   return new Promise( (resolve,reject) => {
     // load client secrets from a local file.
     fs.readFile(credentials_path, (err, content) => {
-      if (err) 
-        reject('error loading client secret file: ', err);
+      if (err)
+        return reject('error loading client secret file: ' + err);
       // create an OAuth2 client with the given credentials
       const {client_secret, client_id, redirect_uris} = JSON.parse(content).installed;
       const google_auth = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);

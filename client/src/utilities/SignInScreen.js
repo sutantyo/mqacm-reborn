@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { auth, firebase } from 'utilities/Firebase'
+import { firebase } from 'utilities/Firebase'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 class SignInScreen extends Component {

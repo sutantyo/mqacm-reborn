@@ -1,123 +1,232 @@
 const fs = require('fs');
 const readline = require('readline');
+const request = require('request');
+const gapi = require('./utilities/gapi_authentication');
+const firebase = require('./utilities/firebase_authentication');
 const {google} = require('googleapis');
 
+let firebase_credentials = 'private/firebase_credentials.json';
+let gapi_credentials = 'private/google_api_credentials.json'
+let gapi_token = 'private/token.json'
+
 //const firebase = require('firebase');
+let participants_data = [];
+let problems_data = [];
+
+let problems_1 = new Set();
+let problems_2 = new Set();
+let problems_3 = new Set();
+let problems_4 = new Set();
+let problems_5 = new Set();
+
+module.exports = {
+  update_data : update_data
+}
+
+/*
+gapi.authenticate(gapi_credentials, gapi_token)
+  .then( (auth) => read_google_spreadsheet(auth) )
+  .then( () =>  firebase.authenticate(firebase_credentials) )
+  .then( () => update_problems() )
+  .then( () => update_participants() )
+  .then( () => console.log('chain is done'))
+  .catch( (error) => {console.log(error); })
+*/
 
 
-// If modifying these scopes, delete token.json.
-const GAPI_SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
-const GAPI_TOKEN_PATH = './private/token.json';
-
-
-// Load client secrets from a local file.
-fs.readFile('./private/google_api_credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
-  // Authorize a client with credentials, then call the Google Sheets API.
-  authorize(JSON.parse(content), readGoogleSpreadsheet);
-});
-
-/**
- * Create an OAuth2 client with the given credentials, and then execute the
- * given callback function.
- * @param {Object} credentials The authorization client credentials.
- * @param {function} callback The callback to call with the authorized client.
- */
-function authorize(credentials, callback) {
-  const {client_secret, client_id, redirect_uris} = credentials.installed;
-  const google_auth = new google.auth.OAuth2(
-      client_id, client_secret, redirect_uris[0]);
-
-  // Check if we have previously stored a token.
-  fs.readFile(GAPI_TOKEN_PATH, (err, token) => {
-    if (err) return getNewToken(google_auth, callback);
-    google_auth.setCredentials(JSON.parse(token));
-    callback(google_auth);
+function update_data(){
+  return new Promise( (resolve,reject) => {
+    gapi.authenticate('private/google_api_credentials.json', 'private/token.json')
+      .then( (auth) => read_google_spreadsheet(auth) )
+      .then( () =>  firebase.authenticate(firebase_credentials) )
+      .then( () => update_problems() )
+      .then( () => update_participants() )
+      .then( () => resolve() )
+      .catch( (error) => {console.log(error); } )
   });
 }
 
-/**
- * Get and store new token after prompting for user authorization, and then
- * execute the given callback with the authorized OAuth2 client.
- * @param {google.auth.OAuth2} google_auth The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback for the authorized client.
- */
-function getNewToken(google_auth, callback) {
-  const authUrl = google_auth.generateAuthUrl({
-    access_type: 'offline',
-    scope: GAPI_SCOPES,
-  });
-  console.log('Authorize this app by visiting this url:', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  rl.question('Enter the code from that page here: ', (code) => {
-    rl.close();
-    google_auth.getToken(code, (err, token) => {
-      if (err) return console.error('Error while trying to retrieve access token', err);
-      google_auth.setCredentials(token);
-      // Store the token to disk for later program executions
-      fs.writeFile(GAPI_TOKEN_PATH, JSON.stringify(token), (err) => {
-        if (err) console.error(err);
-        console.log('Token stored to', GAPI_TOKEN_PATH);
-      });
-      callback(google_auth);
+function read_google_spreadsheet(auth){
+  return new Promise( (resolve,reject) => {
+    const sheets = google.sheets({version: 'v4', auth});
+    sheets.spreadsheets.values.batchGet({
+      spreadsheetId: process.env.GAPI_SPREADSHEET_ID,
+      ranges: [
+        'participants!A:F',
+        'problems!A:F',
+      ],
+    }, (err, res) => {
+      if (err)
+        return reject('The Google API returned an error: ' + err);
+      participants_data = res.data.valueRanges[0].values;
+      problems_data = res.data.valueRanges[1].values;
+      resolve();
     });
   });
 }
 
-/**
- * Prints the names and majors of students in a sample spreadsheet:
- * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
- * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
- */
-function readGoogleSpreadsheet(auth) {
-  const sheets = google.sheets({version: 'v4', auth});
-  sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.GAPI_SPREADSHEET_ID,
-    range: ['test!A:A']//,'Participants!A:F'],
-  }, (err, res) => {
-    if (err) return console.log('The API returned an error: ' + err);
-    const rows = res.data.values;
-    if (rows.length) {
-      console.log('Name, Major:');
-      // Print columns A and E, which correspond to indices 0 and 4.
-      rows.map((row) => {
-        console.log(`${row[0]}, ${row[4]}`);
-        console.log('sheet done');
-      });
-    } else {
-      console.log('No data found.');
+function update_participants(){
+  return new Promise( (resolve,reject) => {
+
+    let participants = {};
+    let user_ids = '';
+
+    // harvest all the ids from the spreadsheet
+    for(let i = 1; i < participants_data.length; i++){
+      user_ids = user_ids + participants_data[i][0] + ',';
+      let current_participant = {};
+      current_participant['id'] = participants_data[i][0];
+      current_participant['name'] = participants_data[i][1];
+      current_participant['fullname'] = participants_data[i][2];
+
+      let id = participants_data[i][0];
+      participants[id] = current_participant;
     }
+
+    // create a participants JSON object
+    //let headers=data[0]; console.log(headers) // uncomment to see headers
+
+    // harvest all the problem ids from the spreadsheet
+    let problem_ids = '';
+    for(let i = 1; i < problems_data.length; i++){
+      problem_ids = problem_ids + problems_data[i][0] + ',';
+    }
+    //let request_string = 'http://uhunt.felix-halim.net/api/subs-nums/'+user_ids+'/'+problem_ids+'/0';
+    let request_string = 'http://uhunt.felix-halim.net/api/solved-bits/'+user_ids;
+    //let request_string = 'http://localhost:4000/data.json';
+    request
+      .get(request_string)
+      .on('error', function(err){
+        return reject('error obtaining data from uHunt API: ' + error);
+      })
+      .on('response',
+      function(response,body){
+        let api_data = JSON.parse(body);
+
+        // The API call returns an array, each array element is a JSON object with
+        // fields 'uid' and 'solved'
+        for (var i = 0; i < api_data.length; i++){
+          let uid = api_data[i].uid;
+
+          let solved = new Set();
+          let solved_1 = new Set();
+          let solved_2 = new Set();
+          let solved_3 = new Set();
+          let solved_4 = new Set();
+          let solved_5 = new Set();
+
+          if (api_data[i].solved.length == 1){
+            participants[uid]['solved'] = [];
+            participants[uid]['solved_count'] = 0;
+            participants[uid]['solved_listed'] = 0;
+            participants[uid]['solved_1_count'] = 0;
+            participants[uid]['solved_2_count'] = 0;
+            participants[uid]['solved_3_count'] = 0;
+            participants[uid]['solved_4_count'] = 0;
+            participants[uid]['solved_5_count'] = 0;
+
+            continue;
+          }
+          let solved_problems = api_data[i].solved;
+          for (let j = 0; j < solved_problems.length; j++){
+            let p = solved_problems[j];
+            let offset = 0;
+            while (p > 0){
+              if (p % 2 == 1){
+                let pid = offset+(j*32);
+                solved.add(pid);
+                if (problems_1.has(pid)) solved_1.add(pid);
+                else if (problems_2.has(pid)) solved_2.add(pid);
+                else if (problems_3.has(pid)) solved_3.add(pid);
+                else if (problems_4.has(pid)) solved_4.add(pid);
+                else if (problems_5.has(pid)) solved_5.add(pid);
+              }
+              offset++;
+              p = p >> 1;
+            }
+          }
+          participants[uid]['solved'] = Array.from(solved);
+          participants[uid]['solved_count'] = solved.size;
+          participants[uid]['solved_listed'] = solved_1.size + solved_2.size + solved_3.size + solved_4.size + solved_5.size;
+          participants[uid]['solved_1'] = Array.from(solved_1);
+          participants[uid]['solved_1_count'] = solved_1.size;
+          participants[uid]['solved_2'] = Array.from(solved_2);
+          participants[uid]['solved_2_count'] = solved_2.size;
+          participants[uid]['solved_3'] = Array.from(solved_3);
+          participants[uid]['solved_3_count'] = solved_3.size;
+          participants[uid]['solved_4'] = Array.from(solved_4);
+          participants[uid]['solved_4_count'] = solved_4.size;
+          participants[uid]['solved_5'] = Array.from(solved_5);
+          participants[uid]['solved_5_count'] = solved_5.size;
+        }
+
+        firebase.admin.database().ref().update({
+          participants
+        })
+        .then( () => process.exit(0))
+        .then( resolve() );
+      });
   });
-  console.log('sheet done');
 }
 
-/*
-const config = {
-  apiKey: "AIzaSyAj7DYUjvN2pLCUmxY-O7dns92kMrOZIyo",
-  authDomain: "mqacm-reborn.firebaseapp.com",
-  databaseURL: "https://mqacm-reborn.firebaseio.com",
-  projectId: "mqacm-reborn",
-  storageBucket: "mqacm-reborn.appspot.com",
-  messagingSenderId: "857133548781"
-};
-firebase.initializeApp(config);
-*/
-testFirebase();
+function update_problems(){
+  return new Promise( (resolve,reject) => {
+    let problems = {};
+    let problems_1_list = {};
+    let problems_2_list = {};
+    let problems_3_list = {};
+    let problems_4_list = {};
+    let problems_5_list = {};
 
-function testFirebase() {
+    // harvest all the ids from the spreadsheet
+    for(let i = 1; i < problems_data.length; i++){
+      let current_problem = {};
+      current_problem['num'] = problems_data[i][0] ? problems_data[i][0] : '';
+      current_problem['pid'] = problems_data[i][1] ? problems_data[i][1] : '';
+      current_problem['title'] = problems_data[i][2] ? problems_data[i][2] : '';
+      current_problem['level'] = problems_data[i][3] ? problems_data[i][3] : '';
+      current_problem['comp'] = problems_data[i][4] ? problems_data[i][4] : '';
+      current_problem['tags'] = problems_data[i][5] ? problems_data[i][5] : '';
+      current_problem['comments'] = problems_data[i][6] ? problems_data[i][6] : '';
 
-  const admin = require("firebase-admin");
-  const serviceAccount = require("./private/firebase_credentials.json");
+      problems[current_problem['pid']] = current_problem;
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://mqacm-reborn.firebaseio.com"
+      // for each problem, classify it according to difficulty (level 1-5)
+      switch(current_problem['level']){
+        case '1': problems_1.add(parseInt(current_problem['pid']));
+                  problems_1_list[parseInt(current_problem['pid'])] = current_problem;
+                  break;
+        case '2': problems_2.add(parseInt(current_problem['pid']));
+                  problems_2_list[parseInt(current_problem['pid'])] = current_problem;
+                  break;
+        case '3': problems_3.add(parseInt(current_problem['pid']));
+                  problems_3_list[parseInt(current_problem['pid'])] = current_problem;
+                  break;
+        case '4': problems_4.add(parseInt(current_problem['pid']));
+                  problems_4_list[parseInt(current_problem['pid'])] = current_problem;
+                  break;
+        case '5': problems_5.add(parseInt(current_problem['pid']));
+                  problems_5_list[parseInt(current_problem['pid'])] = current_problem;
+                  break;
+      }
+    }
+
+    let problem_set = {};
+    problem_set['level_1'] = Array.from(problems_1);
+    problem_set['level_2'] = Array.from(problems_2);
+    problem_set['level_3'] = Array.from(problems_3);
+    problem_set['level_4'] = Array.from(problems_4);
+    problem_set['level_5'] = Array.from(problems_5);
+    problem_set['level_1_list'] = problems_1_list;
+    problem_set['level_2_list'] = problems_2_list;
+    problem_set['level_3_list'] = problems_3_list;
+    problem_set['level_4_list'] = problems_4_list;
+    problem_set['level_5_list'] = problems_5_list;
+
+    firebase.admin.database().ref().update({
+      problems, problem_set
+    })
+    .then( () => process.exit(0))
+    .then( resolve() );
   });
-
-  admin.database().ref('test').update({
-    dione : 'morales',
-  }).then( () => process.exit(0))
 }
