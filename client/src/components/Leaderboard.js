@@ -22,7 +22,7 @@ class Leaderboard extends Component {
     }
   }
 
-  componentWillMount(){
+  componentDidMount(){
     firebase.database().ref('participants').on('value', snapshot =>{
       this.setState({
           participants_loaded : true,
