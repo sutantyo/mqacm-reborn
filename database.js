@@ -234,7 +234,7 @@ function update_problems(){
     problem_set['level_3'] = Array.from(problems_3);
     problem_set['level_4'] = Array.from(problems_4);
     problem_set['level_5'] = Array.from(problems_5);
-    problem_set['level_0_list'] = problems_1_list;
+    problem_set['level_0_list'] = problems_0_list;
     problem_set['level_1_list'] = problems_1_list;
     problem_set['level_2_list'] = problems_2_list;
     problem_set['level_3_list'] = problems_3_list;
