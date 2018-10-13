@@ -78,6 +78,7 @@ class Leaderboard extends Component {
                 <TableCell style={{width:'50px'}}>ID</TableCell>
                 <TableCell style={{width:'200px'}}>Name</TableCell>
                 <TableCell style={{textAlign:'center'}}>Score</TableCell>
+                <TableCell style={{textAlign:'center'}}>Lvl 0</TableCell>
                 <TableCell style={{textAlign:'center'}}>Lvl 1</TableCell>
                 <TableCell style={{textAlign:'center'}}>Lvl 2</TableCell>
                 <TableCell style={{textAlign:'center'}}>Lvl 3</TableCell>
@@ -93,6 +94,7 @@ class Leaderboard extends Component {
                     <TableCell style={{width:'50px',textAlign:'left'}}>{participant.id}</TableCell>
                     <TableCell style={{width:'200px',textAlign:'left'}}>{participant.name}</TableCell>
                     <TableCell style={{textAlign:'center'}}>{participant.solved_listed}</TableCell>
+                    <TableCell style={{textAlign:'center'}}>{participant.solved_0_count}</TableCell>
                     <TableCell style={{textAlign:'center'}}>{participant.solved_1_count}</TableCell>
                     <TableCell style={{textAlign:'center'}}>{participant.solved_2_count}</TableCell>
                     <TableCell style={{textAlign:'center'}}>{participant.solved_3_count}</TableCell>

@@ -99,6 +99,18 @@ class Problems extends Component{
                   Insert text here later
                 </p>
                 <ProblemList
+                  title="Level 0"
+                  user_id={this.state.user_id}
+                  problemset={this.state.problemset.level_0_list}
+                  participants={this.state.participants}
+                  solved={this.state.user_id == null ? [] : this.state.participants[this.state.user_id].solved_0}>
+                </ProblemList>
+              </Paper>
+              <Paper style={paperStyle}>
+                <p style={{marginLeft:'20px'}}>
+                  Insert text here later
+                </p>
+                <ProblemList
                   title="Level 1"
                   user_id={this.state.user_id}
                   problemset={this.state.problemset.level_1_list}

@@ -13,6 +13,7 @@ let gapi_token = 'private/token.json'
 let participants_data = [];
 let problems_data = [];
 
+let problems_0 = new Set();
 let problems_1 = new Set();
 let problems_2 = new Set();
 let problems_3 = new Set();
@@ -116,6 +117,7 @@ function update_participants(){
           let uid = api_data[i].uid;
 
           let solved = new Set();
+          let solved_0 = new Set();
           let solved_1 = new Set();
           let solved_2 = new Set();
           let solved_3 = new Set();
@@ -126,6 +128,7 @@ function update_participants(){
             participants[uid]['solved'] = [];
             participants[uid]['solved_count'] = 0;
             participants[uid]['solved_listed'] = 0;
+            participants[uid]['solved_0_count'] = 0;
             participants[uid]['solved_1_count'] = 0;
             participants[uid]['solved_2_count'] = 0;
             participants[uid]['solved_3_count'] = 0;
@@ -142,7 +145,8 @@ function update_participants(){
               if (p % 2 == 1){
                 let pid = offset+(j*32);
                 solved.add(pid);
-                if (problems_1.has(pid)) solved_1.add(pid);
+                if (problems_0.has(pid)) solved_0.add(pid);
+                else if (problems_1.has(pid)) solved_1.add(pid);
                 else if (problems_2.has(pid)) solved_2.add(pid);
                 else if (problems_3.has(pid)) solved_3.add(pid);
                 else if (problems_4.has(pid)) solved_4.add(pid);
@@ -154,7 +158,9 @@ function update_participants(){
           }
           participants[uid]['solved'] = Array.from(solved);
           participants[uid]['solved_count'] = solved.size;
-          participants[uid]['solved_listed'] = solved_1.size + solved_2.size + solved_3.size + solved_4.size + solved_5.size;
+          participants[uid]['solved_listed'] = solved_0.size + solved_1.size + solved_2.size + solved_3.size + solved_4.size + solved_5.size;
+          participants[uid]['solved_0'] = Array.from(solved_0);
+          participants[uid]['solved_0_count'] = solved_0.size;
           participants[uid]['solved_1'] = Array.from(solved_1);
           participants[uid]['solved_1_count'] = solved_1.size;
           participants[uid]['solved_2'] = Array.from(solved_2);
@@ -178,6 +184,7 @@ function update_participants(){
 function update_problems(){
   return new Promise( (resolve,reject) => {
     let problems = {};
+    let problems_0_list = {};
     let problems_1_list = {};
     let problems_2_list = {};
     let problems_3_list = {};
@@ -199,6 +206,9 @@ function update_problems(){
 
       // for each problem, classify it according to difficulty (level 1-5)
       switch(current_problem['level']){
+        case '0': problems_0.add(parseInt(current_problem['pid']));
+                  problems_0_list[parseInt(current_problem['pid'])] = current_problem;
+                  break;
         case '1': problems_1.add(parseInt(current_problem['pid']));
                   problems_1_list[parseInt(current_problem['pid'])] = current_problem;
                   break;
@@ -218,11 +228,13 @@ function update_problems(){
     }
 
     let problem_set = {};
+    problem_set['level_0'] = Array.from(problems_0);
     problem_set['level_1'] = Array.from(problems_1);
     problem_set['level_2'] = Array.from(problems_2);
     problem_set['level_3'] = Array.from(problems_3);
     problem_set['level_4'] = Array.from(problems_4);
     problem_set['level_5'] = Array.from(problems_5);
+    problem_set['level_0_list'] = problems_1_list;
     problem_set['level_1_list'] = problems_1_list;
     problem_set['level_2_list'] = problems_2_list;
     problem_set['level_3_list'] = problems_3_list;
