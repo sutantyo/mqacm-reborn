@@ -66,7 +66,13 @@ class ProblemList extends React.Component {
 
   render(){
       let problems = this.generateRowData(this.props.problemset, this.props.solved);
-      let cardTitle = this.props.title + " (" + problems.length + " problems)";
+      let solved_count;
+      if (this.props.solved)
+        solved_count = this.props.solved.length;
+      else {
+        solved_count = 0;
+      }
+      let cardTitle = this.props.title + " (" + problems.length + " problems, " +  solved_count + " solved)";
       return (
         <div>
           <Card style = {cardStyle}>
