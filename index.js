@@ -21,6 +21,6 @@ database.start_server()
   .catch( (error) => {console.log(error); } )
 
 
-schedule.scheduleJob('*/1 * * * *', function(){
+schedule.scheduleJob('*/3 * * * *', function(){
   database.update_server();
 });

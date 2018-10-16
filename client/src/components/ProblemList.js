@@ -66,6 +66,7 @@ class ProblemList extends React.Component {
 
   render(){
       let problems = this.generateRowData(this.props.problemset, this.props.solved);
+      console.log(this.props.problemset)
       let solved_count;
       if (this.props.solved)
         solved_count = this.props.solved.length;
@@ -82,26 +83,26 @@ class ProblemList extends React.Component {
             <Table>
               <TableHead>
                 <TableRow style={{height:'28px'}}>
-                  <TableCell style={{minWidth:'20px'}}>ID</TableCell>
-                    <TableCell></TableCell>
-                  <TableCell style={{minWidth:'200px'}}>Title</TableCell>
-                  <TableCell style={{minWidth:'10px'}}>Level</TableCell>
-                  <TableCell style={{minWidth:'30px'}}>Tags</TableCell>
-                  <TableCell style={{minWidth:'200px'}}>Comment</TableCell>
+                  <TableCell style={{width:'2%',textAlign:'center'}}>ID</TableCell>
+                  <TableCell style={{width:'2%',textAlign:'center'}}></TableCell>
+                  <TableCell style={{width:'25%',textAlign:'center'}}>Title</TableCell>
+                  <TableCell style={{width:'2%',textAlign:'center'}}>Level</TableCell>
+                  <TableCell style={{width:'19%',textAlign:'center'}}>Tags</TableCell>
+                  <TableCell style={{width:'50%',textAlign:'center'}}>Comment</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
               {problems.map( problem =>
                   <TableRow key={problem.num} style={{height:'20px'}}>
-                      <TableCell style={{minWidth:'20px',textAlign:'left'}}>{problem.num}</TableCell>
-                      <TableCell style={{textAlign:'left'}}>{this.tickbox(problem.solved)}</TableCell>
-                      <TableCell style={{minWidth:'200px'}} >
+                      <TableCell numeric style={{width: '2%',textAlign:'right'}}>{problem.num}</TableCell>
+                      <TableCell style={{width: '2%', textAlign:'left'}}>{this.tickbox(problem.solved)}</TableCell>
+                      <TableCell style={{width:'25%'}}>
                         <a href={"https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem="+problem.pid} target={'_blank'}>
-                        {problem.title}</a><
-                      /TableCell>
-                      <TableCell style={{minWidth:'10px'}}>{problem.level}</TableCell>
-                      <TableCell style={{minWidth:'30px',whiteSpace:'normal',wordWrap:'break-word'}}>{problem.tags}</TableCell>
-                  <TableCell style={{minWidth:'200px'}}>{problem.comment}</TableCell>
+                        {problem.title}</a>
+                      </TableCell>
+                      <TableCell numeric style={{width: '2%',textAlign:'center'}}>{problem.level}</TableCell>
+                      <TableCell style={{width:'19%',textAlign:'center'}}>{problem.tags}</TableCell>
+                      <TableCell style={{width:'50%'}}>{problem.comments}</TableCell>
                   </TableRow>
                 )
               }

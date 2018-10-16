@@ -63,7 +63,7 @@ function read_google_spreadsheet(auth){
       spreadsheetId: process.env.GAPI_SPREADSHEET_ID,
       ranges: [
         'participants!A:F',
-        'problems!A:F',
+        'problems!A:G',
       ],
     }, (err, res) => {
       if (err)
@@ -83,27 +83,23 @@ function update_participants(){
 
     // harvest all the ids from the spreadsheet
     for(let i = 1; i < participants_data.length; i++){
-      user_ids = user_ids + participants_data[i][0] + ',';
+    // create a participants JSON object
       let current_participant = {};
-      current_participant['id'] = participants_data[i][0];
-      current_participant['name'] = participants_data[i][1];
-      current_participant['fullname'] = participants_data[i][2];
+      current_participant['id'] = participants_data[i][0] ? participants_data[i][0] : '';
+      current_participant['name'] = participants_data[i][1] ? participants_data[i][1] : '';
+      current_participant['fullname'] = participants_data[i][2] ? participants_data[i][2] : '';
 
       let id = participants_data[i][0];
+      user_ids = user_ids + id + ',';
       participants[id] = current_participant;
     }
-
-    // create a participants JSON object
-    //let headers=data[0]; console.log(headers) // uncomment to see headers
 
     // harvest all the problem ids from the spreadsheet
     let problem_ids = '';
     for(let i = 1; i < problems_data.length; i++){
       problem_ids = problem_ids + problems_data[i][0] + ',';
     }
-    //let request_string = 'http://uhunt.felix-halim.net/api/subs-nums/'+user_ids+'/'+problem_ids+'/0';
     let request_string = 'http://uhunt.felix-halim.net/api/solved-bits/'+user_ids;
-    //let request_string = 'http://localhost:4000/data.json';
     request(request_string,
       function(error,response,body){
         if (error){
