@@ -40,7 +40,7 @@ const DefaultLayout = ({component: Component, ...rest}) => {
   return(
     <Route {...rest} render = {matchProps => (
       <div>
-        <TopNavBar />
+        <TopNavBar auth={true} />
         <Component {...matchProps}/>
       </div>
     )} />

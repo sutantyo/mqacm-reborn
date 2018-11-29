@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { firebase } from 'utilities/Firebase'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+import TopNavBar from '../components/TopNavBar';
 
 class SignInScreen extends Component {
   state = {
@@ -46,6 +47,7 @@ class SignInScreen extends Component {
     if (!this.state.isSignedIn) {
       return (
         <div>
+          <TopNavBar auth={false}/>
           <h1>My App</h1>
           <p>Please sign-in using your OneID:</p>
           <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={firebase.auth()}/>
@@ -54,6 +56,7 @@ class SignInScreen extends Component {
     }
     return (
       <div>
+        <TopNavBar auth={true} />
         <h1>My App</h1>
         <p>Welcome {firebase.auth().currentUser.displayName}. You are now signed-in!</p>
         <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
